@@ -1,26 +1,24 @@
 sudo: required
+language: generic
+
 services:
   - docker
 
+before_install:
+  - docker build -t santoshkona/react-test -f ./client/Dockerfile.dev ./client
 
-  before_install:
-    - docker build -t skona/react-test -f ./client/Dockerfile.dev ./client
+script:
+  - docker run -e CI=true santoshkona/react-test npm test
 
-  script:
-    - docker run skona/react-test npm test -- --coverage
-
-  after_success:
-    - docker build -t santhoshkona/multi-client ./client
-    - docker build -t santhoshkona/multi-nginx ./nginx
-    - docker build -t santhoshkona/multi-server ./server
-    - docker build -t santhoshkona/multi-worker ./worker
-
-# Login to the docker CLI
-
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
-
-# take those images and push them to docker-hub
-    - docker push santhoshkona/multi-client
-    - docker push santhoshkona/multi-nginx
-    - docker push santhoshkona/multi-server
-    - docker push santhoshkona/multi-worker
+after_success:
+  - docker build -t santoshkona/multi-client ./client
+  - docker build -t santoshkona/multi-nginx ./nginx
+  - docker build -t santoshkona/multi-server ./server
+  - docker build -t santoshkona/multi-worker ./worker
+  # Log in to the docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # Take those images and push them to docker hub
+  - docker push santoshkona/multi-client
+  - docker push santoshkona/multi-nginx
+  - docker push santoshkona/multi-server
+  - docker push santoshkona/multi-worker
